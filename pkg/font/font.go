@@ -2,16 +2,18 @@
 package font
 
 import (
+	"time"
 	"unicode/utf8"
 
+	"github.com/mustafanafizdurukan/pomodoro/pkg/console"
 	"github.com/nsf/termbox-go"
 )
 
 type Font struct {
-	text     string
-	fgcolor  termbox.Attribute
-	bgcolor  termbox.Attribute
-	position Position
+	Text     string
+	Fgcolor  termbox.Attribute
+	Bgcolor  termbox.Attribute
+	Position Position
 }
 
 type Position struct {
@@ -20,12 +22,11 @@ type Position struct {
 }
 
 // New returns Font struct
-func New(text string, fgcolor termbox.Attribute, bgcolor termbox.Attribute, position *Position) *Font {
+func New(fgcolor termbox.Attribute, bgcolor termbox.Attribute, position *Position) *Font {
 	return &Font{
-		text:     text,
-		fgcolor:  fgcolor,
-		bgcolor:  bgcolor,
-		position: *position,
+		Fgcolor:  fgcolor,
+		Bgcolor:  bgcolor,
+		Position: *position,
 	}
 }
 
@@ -57,11 +58,19 @@ func (t font) Height() int {
 	return len(t[0])
 }
 
+var isCalculationExecuted bool
+
 // Echo prints text as font to the console.
 func (f *Font) Echo() {
-	font := toFont(f.text)
+	font := toFont(f.Text)
+
+	if !isCalculationExecuted {
+		f.calculatePoints(font)
+		isCalculationExecuted = true
+	}
 
 	f.echo(font)
+	console.Flush()
 }
 
 func toFont(str string) font {
@@ -75,19 +84,44 @@ func toFont(str string) font {
 }
 
 func (f *Font) echo(font font) {
-	xSymbol := f.position.X
-	xline, yLine := f.position.X, f.position.Y
+	xSymbol := f.Position.X
+	xline, yLine := f.Position.X, f.Position.Y
 	for _, s := range font {
 		for _, line := range s {
 			for _, r := range line {
-				termbox.SetCell(xline, yLine, r, f.fgcolor, f.bgcolor)
+				termbox.SetCell(xline, yLine, r, f.Fgcolor, f.Bgcolor)
 				xline++
 			}
 			xline = xSymbol
 			yLine++
 		}
-		yLine = f.position.Y
+		yLine = f.Position.Y
 		xSymbol += s.Width()
 		xline = xSymbol
+	}
+}
+
+func (f *Font) calculatePoints(fo font) {
+	x, y := console.MidPoint()
+	f.Position.X = x - fo.Width()/2
+	f.Position.Y = y - fo.Height()/2
+}
+
+var zero = "00:00"
+
+// EchoZero prints 00:00 for 2 seconds
+func (f *Font) EchoZero() {
+	console.Clear()
+	font := toFont(zero)
+
+	f.calculatePoints(font)
+
+	for i := 0; i < 3; i++ {
+		time.Sleep(time.Second / 3)
+		f.echo(font)
+		console.Flush()
+		time.Sleep(time.Second / 2)
+		console.Clear()
+		console.Flush()
 	}
 }

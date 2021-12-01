@@ -5,7 +5,10 @@ import (
 	_ "os"
 
 	"github.com/mustafanafizdurukan/pomodoro/internal/event"
+	"github.com/mustafanafizdurukan/pomodoro/internal/pomo"
 	"github.com/mustafanafizdurukan/pomodoro/pkg/console"
+	"github.com/mustafanafizdurukan/pomodoro/pkg/font"
+	"github.com/nsf/termbox-go"
 )
 
 func main() {
@@ -15,19 +18,23 @@ func main() {
 		return
 	}
 
-	// f := font.New("LA", termbox.ColorCyan, termbox.ColorDefault, &font.Position{5, 5})
+	_, y := console.SizeSixteenOver(6)
+	x, _ := console.MidPoint()
+	pos := font.Position{x, y}
 
-	// a := termbox.ColorDefault
-	// console.Print("sdgd", a, a, 0, 0)
+	f := font.New(termbox.ColorCyan, termbox.ColorDefault, &pos)
 
-	// f.Echo()
-	// console.Flush()
-
-	e, err := event.New("10s")
+	e, err := event.New(f)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	e.Start()
+	p, err := pomo.New("3s", "1s", "2s", e)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	p.Start()
 }

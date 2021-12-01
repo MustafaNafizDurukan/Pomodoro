@@ -5,10 +5,12 @@ package event
 import (
 	"errors"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/mustafanafizdurukan/pomodoro/pkg/console"
 	"github.com/mustafanafizdurukan/pomodoro/pkg/convert"
+	"github.com/mustafanafizdurukan/pomodoro/pkg/font"
 	"github.com/mustafanafizdurukan/pomodoro/pkg/timer"
 	"github.com/nsf/termbox-go"
 )
@@ -18,18 +20,15 @@ var (
 )
 
 type Event struct {
-	timeLeft time.Duration
-	queues   chan termbox.Event
+	TimeLeft  time.Duration
+	queues    chan termbox.Event
+	f         *font.Font
+	PomoCount int
 }
 
 // New returns pointer of event structure. If given string could not be parsed It returns error.
 // Time string should be 1h6m, 23m3s format.
-func New(timeString string) (*Event, error) {
-	duration, err := time.ParseDuration(timeString)
-	if err != nil {
-		return nil, errParse
-	}
-
+func New(f *font.Font) (*Event, error) {
 	queues := make(chan termbox.Event)
 	go func() {
 		for {
@@ -38,14 +37,14 @@ func New(timeString string) (*Event, error) {
 	}()
 
 	return &Event{
-		timeLeft: duration,
-		queues:   queues,
+		queues: queues,
+		f:      f,
 	}, nil
 }
 
 func (e *Event) Start() {
 	wilRun := true
-	timer.Start(e.timeLeft)
+	timer.Start(e.TimeLeft)
 
 loop:
 	for {
@@ -61,18 +60,37 @@ loop:
 				timer.Stop()
 			}
 			if ev.Ch == 'c' || ev.Ch == 'C' {
-				timer.Start(e.timeLeft)
+				timer.Start(e.TimeLeft)
 			}
 		case <-timer.Ticker.C:
-			timer.Decrease(&e.timeLeft)
+			timer.Decrease(&e.TimeLeft)
 			if wilRun {
-				console.Print(convert.DateToString(e.timeLeft), termbox.ColorDefault, termbox.ColorDefault, 5, 5)
-				console.Flush()
+				termbox.Sync()
+				console.Clear()
+				// x, y := console.MidPoint()
+				// console.Print(convert.DateToString(e.TimeLeft), termbox.ColorDefault, termbox.ColorDefault, x, y)
+				e.f.Text = convert.DateToString(e.TimeLeft)
+				e.f.Echo()
+
+				pomoC := strings.Repeat("X", e.PomoCount)
+				_, y := console.SizeSixteenOver(13)
+
+				x, _ := console.MidPoint()
+				console.Print(pomoC, termbox.ColorDefault, termbox.ColorDefault, x-len(pomoC), y)
+
 				wilRun = false
 				break
 			}
 			wilRun = true
 		case <-timer.Timer.C:
+			console.Clear()
+			e.f.EchoZero()
+
+			pomoC := strings.Repeat("X", e.PomoCount)
+			_, y := console.SizeSixteenOver(13)
+
+			x, _ := console.MidPoint()
+			console.Print(pomoC, termbox.ColorDefault, termbox.ColorDefault, x-len(pomoC), y)
 			break loop
 		}
 	}

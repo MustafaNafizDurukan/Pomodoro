@@ -34,11 +34,27 @@ func SizeSixteenOver(number int) (int, int) {
 		return 0, 0
 	}
 
-	if number > 3 || number < 1 {
+	if number > 15 || number < 1 {
 		return Size()
 	}
 
 	return (w / 16) * number, (h / 16) * number
+}
+
+// SizeFourOver returns returns Number/4 of the
+// width and height of the console based on the number you enter.
+// If width of height of console lower than 4 this function does not work.
+func SizeEightOver(number int) (int, int) {
+	w, h := Size()
+	if w < 8 || h < 8 {
+		return 0, 0
+	}
+
+	if number > 7 || number < 1 {
+		return Size()
+	}
+
+	return (w / 8) * number, (h / 8) * number
 }
 
 // SizeFourOver returns returns Number/4 of the
@@ -90,6 +106,7 @@ func Print(str string, fgcolor, bgcolor termbox.Attribute, x, y int) {
 		termbox.SetCell(x, y, r, fgcolor, bgcolor)
 		x++
 	}
+	Flush()
 }
 
 // Close closes the termbox
