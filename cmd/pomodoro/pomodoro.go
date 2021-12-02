@@ -30,7 +30,7 @@ func main() {
 		return
 	}
 
-	p, err := pomo.New("3s", "1s", "2s", e)
+	p, err := pomo.New("8s", "1s", "2s", e)
 	if err != nil {
 		fmt.Println(err)
 		return

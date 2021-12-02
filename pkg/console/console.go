@@ -3,6 +3,7 @@ package console
 
 import (
 	"errors"
+	"math"
 
 	"github.com/nsf/termbox-go"
 )
@@ -28,7 +29,7 @@ func MidPoint() (int, int) {
 // SizeSixteenOver returns returns Number/16 of the
 // width and height of the console based on the number you enter.
 // If width of height of console lower than 16 this function does not work.
-func SizeSixteenOver(number int) (int, int) {
+func SizeSixteenOver(number float64) (int, int) {
 	w, h := Size()
 	if w < 16 || h < 16 {
 		return 0, 0
@@ -38,13 +39,16 @@ func SizeSixteenOver(number int) (int, int) {
 		return Size()
 	}
 
-	return (w / 16) * number, (h / 16) * number
+	w = int(math.Round((float64(w) / 16.0) * number))
+	h = int(math.Round((float64(h) / 16.0) * number))
+
+	return w, h
 }
 
 // SizeFourOver returns returns Number/4 of the
 // width and height of the console based on the number you enter.
 // If width of height of console lower than 4 this function does not work.
-func SizeEightOver(number int) (int, int) {
+func SizeEightOver(number float64) (int, int) {
 	w, h := Size()
 	if w < 8 || h < 8 {
 		return 0, 0
@@ -54,13 +58,16 @@ func SizeEightOver(number int) (int, int) {
 		return Size()
 	}
 
-	return (w / 8) * number, (h / 8) * number
+	w = int(math.Round((float64(w) / 8.0) * number))
+	h = int(math.Round((float64(h) / 8.0) * number))
+
+	return w, h
 }
 
 // SizeFourOver returns returns Number/4 of the
 // width and height of the console based on the number you enter.
 // If width of height of console lower than 4 this function does not work.
-func SizeFourOver(number int) (int, int) {
+func SizeFourOver(number float64) (int, int) {
 	w, h := Size()
 	if w < 4 || h < 4 {
 		return 0, 0
@@ -70,7 +77,10 @@ func SizeFourOver(number int) (int, int) {
 		return Size()
 	}
 
-	return (w / 4) * number, (h / 4) * number
+	w = int(math.Round((float64(w) / 4.0) * number))
+	h = int(math.Round((float64(h) / 4.0) * number))
+
+	return w, h
 }
 
 // Clear clears all font to from console. If it fails it returns error.

@@ -5,7 +5,6 @@ package event
 import (
 	"errors"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/mustafanafizdurukan/pomodoro/pkg/console"
@@ -72,11 +71,11 @@ loop:
 				e.f.Text = convert.DateToString(e.TimeLeft)
 				e.f.Echo()
 
-				pomoC := strings.Repeat("X", e.PomoCount)
-				_, y := console.SizeSixteenOver(13)
+				_, y := console.SizeSixteenOver(11)
 
 				x, _ := console.MidPoint()
-				console.Print(pomoC, termbox.ColorDefault, termbox.ColorDefault, x-len(pomoC), y)
+				pomoC := "Don't look at me"
+				console.Print(pomoC, termbox.ColorDefault, termbox.ColorDefault, x-len(pomoC)/2, y)
 
 				wilRun = false
 				break
@@ -85,12 +84,6 @@ loop:
 		case <-timer.Timer.C:
 			console.Clear()
 			e.f.EchoZero()
-
-			pomoC := strings.Repeat("X", e.PomoCount)
-			_, y := console.SizeSixteenOver(13)
-
-			x, _ := console.MidPoint()
-			console.Print(pomoC, termbox.ColorDefault, termbox.ColorDefault, x-len(pomoC), y)
 			break loop
 		}
 	}
