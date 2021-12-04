@@ -2,10 +2,8 @@
 package font
 
 import (
-	"time"
 	"unicode/utf8"
 
-	"github.com/mustafanafizdurukan/pomodoro/pkg/console"
 	"github.com/nsf/termbox-go"
 )
 
@@ -33,47 +31,45 @@ func New(fgcolor termbox.Attribute, bgcolor termbox.Attribute, position *Positio
 type symbol []string
 
 // Width returns width of given symbol
-func (s symbol) Width() int {
+func (s symbol) width() int {
 	return utf8.RuneCountInString(s[0])
 }
 
 // Height returns height of given symbol
-func (s symbol) Height() int {
+func (s symbol) height() int {
 	return len(s)
 }
 
 type font []symbol
 
 // Width returns width of given font
-func (t font) Width() int {
+func (f font) width() int {
 	w := 0
-	for _, s := range t {
+	for _, s := range f {
 		w += utf8.RuneCountInString(s[0])
 	}
 	return w
 }
 
 // Height returns height of given font
-func (t font) Height() int {
-	return len(t[0])
+func (f font) height() int {
+	return len(f[0])
 }
 
-var isCalculationExecuted bool
+// Size returns width and height of given font
+func Size(f font) (int, int) {
+	return f.width(), f.height()
+}
 
 // Echo prints text as font to the console.
 func (f *Font) Echo() {
-	font := toFont(f.Text)
-
-	if !isCalculationExecuted {
-		f.calculatePoints(font)
-		isCalculationExecuted = true
-	}
+	font := ToFont(f.Text)
 
 	f.echo(font)
-	console.Flush()
 }
 
-func toFont(str string) font {
+// ToFont converts given string to font.
+func ToFont(str string) font {
 	symbolSlice := make(font, 0)
 	for _, r := range str {
 		if s, ok := symbols[r]; ok {
@@ -96,32 +92,7 @@ func (f *Font) echo(font font) {
 			yLine++
 		}
 		yLine = f.Position.Y
-		xSymbol += s.Width()
+		xSymbol += s.width()
 		xline = xSymbol
-	}
-}
-
-func (f *Font) calculatePoints(fo font) {
-	x, y := console.MidPoint()
-	f.Position.X = x - fo.Width()/2
-	f.Position.Y = y - fo.Height()/2
-}
-
-var zero = "00:00"
-
-// EchoZero prints 00:00 for 2 seconds
-func (f *Font) EchoZero() {
-	console.Clear()
-	font := toFont(zero)
-
-	f.calculatePoints(font)
-
-	for i := 0; i < 3; i++ {
-		time.Sleep(time.Second / 3)
-		f.echo(font)
-		console.Flush()
-		time.Sleep(time.Second / 2)
-		console.Clear()
-		console.Flush()
 	}
 }

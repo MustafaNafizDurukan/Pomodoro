@@ -1,5 +1,5 @@
 // Package event implements functions to
-// TODO: Complete here
+// TODO(mustafa): Complete here
 package event
 
 import (
@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/mustafanafizdurukan/pomodoro/internal/print"
 	"github.com/mustafanafizdurukan/pomodoro/pkg/console"
-	"github.com/mustafanafizdurukan/pomodoro/pkg/convert"
 	"github.com/mustafanafizdurukan/pomodoro/pkg/font"
 	"github.com/mustafanafizdurukan/pomodoro/pkg/timer"
 	"github.com/nsf/termbox-go"
@@ -19,10 +19,9 @@ var (
 )
 
 type Event struct {
-	TimeLeft  time.Duration
-	queues    chan termbox.Event
-	f         *font.Font
-	PomoCount int
+	TimeLeft time.Duration
+	f        *font.Font
+	queues   chan termbox.Event
 }
 
 // New returns pointer of event structure. If given string could not be parsed It returns error.
@@ -62,20 +61,11 @@ loop:
 				timer.Start(e.TimeLeft)
 			}
 		case <-timer.Ticker.C:
+			termbox.Sync()
 			timer.Decrease(&e.TimeLeft)
 			if wilRun {
-				termbox.Sync()
 				console.Clear()
-				// x, y := console.MidPoint()
-				// console.Print(convert.DateToString(e.TimeLeft), termbox.ColorDefault, termbox.ColorDefault, x, y)
-				e.f.Text = convert.DateToString(e.TimeLeft)
-				e.f.Echo()
-
-				_, y := console.SizeSixteenOver(11)
-
-				x, _ := console.MidPoint()
-				pomoC := "Don't look at me"
-				console.Print(pomoC, termbox.ColorDefault, termbox.ColorDefault, x-len(pomoC)/2, y)
+				print.Time(e.f, e.TimeLeft)
 
 				wilRun = false
 				break
@@ -83,8 +73,9 @@ loop:
 			wilRun = true
 		case <-timer.Timer.C:
 			console.Clear()
-			e.f.EchoZero()
 			break loop
 		}
 	}
+
+	print.Zero(e.f)
 }

@@ -47,17 +47,16 @@ func New(pomoTime, shortBreak, longBreak string, e *event.Event) (*Pomo, error) 
 // Start starts pomodoro
 func (p *Pomo) Start() error {
 	for i := 0; i < 12; i++ {
-		p.e.PomoCount = i
-		if i != 0 && i%4 == 0 {
-			p.e.TimeLeft = p.longBreak
-			p.e.Start()
-		}
-
 		p.e.TimeLeft = p.pomoTime
 		p.e.Start()
 
-		p.e.TimeLeft = p.shortBreak
-		p.e.Start()
+		if i != 0 && i%4 == 3 {
+			p.e.TimeLeft = p.longBreak
+			p.e.Start()
+		} else {
+			p.e.TimeLeft = p.shortBreak
+			p.e.Start()
+		}
 	}
 
 	return nil
