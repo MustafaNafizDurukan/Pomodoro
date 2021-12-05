@@ -11,19 +11,28 @@ import (
 )
 
 var (
-	pomoC string
+	pomoC       string
+	ShouldAlign bool
 )
 
 // Time prints left time and message to the console
 func Time(f *font.Font, TimeLeft time.Duration) {
+	f.Text = convert.DateToString(TimeLeft)
+
+	if f.Text == "" {
+		return
+	}
+
 	console.Clear()
+	defer console.Flush()
 
 	m := TimeLeft.Round(time.Second)
-	if int(m.Seconds()) == 0 {
+	if ShouldAlign {
 		calculatePoints(f)
 		pomoC = list.Message()
+		ShouldAlign = false
 	}
-	if int(m.Seconds())%8 == 0 {
+	if int(m.Seconds())%10 == 0 {
 		pomoC = list.Message()
 	}
 
@@ -32,10 +41,7 @@ func Time(f *font.Font, TimeLeft time.Duration) {
 
 	console.Print(pomoC, termbox.ColorDefault, termbox.ColorDefault, x-len(pomoC)/2, y)
 
-	f.Text = convert.DateToString(TimeLeft)
 	f.Echo()
-
-	console.Flush()
 }
 
 // Zero prints 00:00 for 2 seconds to the console

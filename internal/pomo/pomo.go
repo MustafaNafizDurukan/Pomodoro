@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/mustafanafizdurukan/pomodoro/internal/event"
+	"github.com/mustafanafizdurukan/pomodoro/internal/print"
 )
 
 type Pomo struct {
@@ -48,13 +49,16 @@ func New(pomoTime, shortBreak, longBreak string, e *event.Event) (*Pomo, error) 
 func (p *Pomo) Start() error {
 	for i := 0; i < 12; i++ {
 		p.e.TimeLeft = p.pomoTime
+		print.ShouldAlign = true
 		p.e.Start()
 
 		if i != 0 && i%4 == 3 {
 			p.e.TimeLeft = p.longBreak
+			print.ShouldAlign = true
 			p.e.Start()
 		} else {
 			p.e.TimeLeft = p.shortBreak
+			print.ShouldAlign = true
 			p.e.Start()
 		}
 	}
