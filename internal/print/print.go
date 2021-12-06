@@ -27,11 +27,6 @@ func Time(f *font.Font, TimeLeft time.Duration) {
 	defer console.Flush()
 
 	m := TimeLeft.Round(time.Second)
-	if ShouldAlign {
-		calculatePoints(f)
-		pomoC = list.Message()
-		ShouldAlign = false
-	}
 	if int(m.Seconds())%10 == 0 {
 		pomoC = list.Message()
 	}
@@ -41,6 +36,7 @@ func Time(f *font.Font, TimeLeft time.Duration) {
 
 	console.Print(pomoC, termbox.ColorDefault, termbox.ColorDefault, x-len(pomoC)/2, y)
 
+	calculatePoints(f)
 	f.Echo()
 }
 
@@ -49,11 +45,13 @@ func Zero(f *font.Font) {
 	f.Text = "00:00"
 
 	for i := 0; i < 3; i++ {
-		time.Sleep(time.Second / 3)
 		f.Echo()
 		console.Flush()
 		time.Sleep(time.Second / 2)
+
 		console.Clear()
+		console.Flush()
+		time.Sleep(time.Second / 2)
 	}
 }
 

@@ -28,15 +28,15 @@ func MidPoint() (int, int) {
 
 // SizeSixteenOver returns returns Number/16 of the
 // width and height of the console based on the number you enter.
-// If width of height of console lower than 16 this function does not work.
+// If width of height of console lower than 16 this function returns middle points.
 func SizeSixteenOver(number float64) (int, int) {
 	w, h := Size()
 	if w < 16 || h < 16 {
-		return 0, 0
+		return MidPoint()
 	}
 
 	if number > 15 || number < 1 {
-		return Size()
+		return MidPoint()
 	}
 
 	w = int(math.Round((float64(w) / 16.0) * number))
@@ -47,15 +47,15 @@ func SizeSixteenOver(number float64) (int, int) {
 
 // SizeFourOver returns returns Number/4 of the
 // width and height of the console based on the number you enter.
-// If width of height of console lower than 4 this function does not work.
+// If width of height of console lower than 4 this function returns middle points.
 func SizeEightOver(number float64) (int, int) {
 	w, h := Size()
 	if w < 8 || h < 8 {
-		return 0, 0
+		return MidPoint()
 	}
 
 	if number > 7 || number < 1 {
-		return Size()
+		return MidPoint()
 	}
 
 	w = int(math.Round((float64(w) / 8.0) * number))
@@ -66,15 +66,15 @@ func SizeEightOver(number float64) (int, int) {
 
 // SizeFourOver returns returns Number/4 of the
 // width and height of the console based on the number you enter.
-// If width of height of console lower than 4 this function does not work.
+// If width of height of console lower than 4 this function returns middle points.
 func SizeFourOver(number float64) (int, int) {
 	w, h := Size()
 	if w < 4 || h < 4 {
-		return 0, 0
+		return MidPoint()
 	}
 
 	if number > 3 || number < 1 {
-		return Size()
+		return MidPoint()
 	}
 
 	w = int(math.Round((float64(w) / 4.0) * number))

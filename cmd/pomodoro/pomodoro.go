@@ -39,7 +39,7 @@ func main() {
 		return
 	}
 
-	_, y := console.SizeSixteenOver(6)
+	_, y := console.SizeSixteenOver(8)
 	x, _ := console.MidPoint()
 	pos := font.Position{x, y}
 
