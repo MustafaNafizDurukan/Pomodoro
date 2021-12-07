@@ -6,5 +6,6 @@ require (
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/mattn/go-runewidth v0.0.12 // indirect
 	github.com/nsf/termbox-go v0.0.0-20201107200903-9b52a5faed9e
+	github.com/stretchr/testify v1.7.0
 	gopkg.in/yaml.v2 v2.4.0
 )
