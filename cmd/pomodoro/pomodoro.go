@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	_ "os"
+	"time"
 
 	"github.com/mustafanafizdurukan/pomodoro/internal/event"
 	"github.com/mustafanafizdurukan/pomodoro/internal/pomo"
@@ -12,10 +13,15 @@ import (
 	"github.com/mustafanafizdurukan/pomodoro/pkg/flags"
 	"github.com/mustafanafizdurukan/pomodoro/pkg/font"
 	"github.com/mustafanafizdurukan/pomodoro/pkg/panik"
+	"github.com/mustafanafizdurukan/pomodoro/pkg/win32api"
 	"github.com/nsf/termbox-go"
 )
 
 func main() {
+	time.Sleep(2 * time.Second)
+	win32api.FlashWindowEx()
+
+	return
 	var err error
 	defer panik.Catch()
 

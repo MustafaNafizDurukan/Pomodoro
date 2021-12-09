@@ -3,6 +3,9 @@
 package win32api
 
 import (
+	"fmt"
+	"unsafe"
+
 	"golang.org/x/sys/windows"
 )
 
@@ -20,31 +23,32 @@ var (
 	procGetConsoleWindow = modkernel32.NewProc("GetConsoleWindow")
 )
 
-// type FLASHWINFO struct {
-// 	cbSize    uint
-// 	hwnd      HWND
-// 	dwFlags   uint32
-// 	uCount    uint
-// 	dwTimeout uint32
-// }
+type FLASHWINFO struct {
+	cbSize    uint
+	hwnd      HWND
+	dwFlags   uint32
+	uCount    uint
+	dwTimeout uint32
+}
 
-// var (
-// 	FLASHW_TIMERNOFG = 0x0000000C
-// 	FLASHW_TRAY      = 0x00000002
-// )
+var (
+	FLASHW_TIMERNOFG = 0x0000000C
+	FLASHW_TRAY      = 0x00000002
+	FLASHW_ALL       = 0x00000003
+)
 
-// func FlashWindowEx() {
-// 	var fwi FLASHWINFO
-// 	fwi.cbSize = uint(unsafe.Sizeof(fwi))
+func FlashWindowEx() {
+	var fwi FLASHWINFO
+	fwi.cbSize = uint(unsafe.Sizeof(fwi))
 
-// 	fwi.hwnd = GetConsoleWindow()
-// 	fwi.dwFlags = uint32(FLASHW_TIMERNOFG | FLASHW_TRAY)
-// 	fwi.uCount = 10
-// 	fwi.dwTimeout = 1000
+	fwi.hwnd = GetConsoleWindow()
+	fwi.dwFlags = uint32(FLASHW_ALL | FLASHW_TIMERNOFG)
+	fwi.uCount = 10
+	fwi.dwTimeout = 0
 
-// 	r0, _, e0 := procFlashWindowEx.Call(uintptr(unsafe.Pointer(&fwi)))
-// 	fmt.Print(r0, e0)
-// }
+	r0, _, e0 := procFlashWindowEx.Call(uintptr(unsafe.Pointer(&fwi)))
+	fmt.Print(r0, e0)
+}
 
 func GetConsoleWindow() HWND {
 	ret, _, _ := procGetConsoleWindow.Call()
@@ -60,7 +64,6 @@ func ShowWindow(hwnd HWND, cmdshow int) bool {
 		uintptr(cmdshow))
 
 	return ret != 0
-
 }
 
 const (
