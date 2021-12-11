@@ -3,7 +3,7 @@
 package win32api
 
 import (
-	"fmt"
+	"syscall"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
@@ -15,10 +15,8 @@ var (
 )
 
 var (
-	procFlashWindowEx       = moduser32.NewProc("FlashWindowEx")
-	procGetForegroundWindow = moduser32.NewProc("GetForegroundWindow")
-	procGetActiveWindow     = moduser32.NewProc("GetActiveWindow")
-	procShowWindow          = moduser32.NewProc("ShowWindow")
+	procFlashWindowEx = moduser32.NewProc("FlashWindowEx")
+	procShowWindow    = moduser32.NewProc("ShowWindow")
 
 	procGetConsoleWindow = modkernel32.NewProc("GetConsoleWindow")
 )
@@ -37,17 +35,23 @@ var (
 	FLASHW_ALL       = 0x00000003
 )
 
-func FlashWindowEx() {
+func FlashWindowEx() error {
 	var fwi FLASHWINFO
 	fwi.cbSize = uint(unsafe.Sizeof(fwi))
 
 	fwi.hwnd = GetConsoleWindow()
 	fwi.dwFlags = uint32(FLASHW_ALL | FLASHW_TIMERNOFG)
-	fwi.uCount = 10
-	fwi.dwTimeout = 0
+	fwi.uCount = 0
+	fwi.dwTimeout = 1000
 
-	r0, _, e0 := procFlashWindowEx.Call(uintptr(unsafe.Pointer(&fwi)))
-	fmt.Print(r0, e0)
+	// a := uintptr(unsafe.Pointer(&fwi))
+	// fmt.Println(&fwi, unsafe.Pointer(a), a)
+	r0, _, _ := procFlashWindowEx.Call(uintptr(unsafe.Pointer(&fwi)))
+	// fmt.Println(r0, e0)
+	if r0 < 0 {
+		return syscall.GetLastError()
+	}
+	return nil
 }
 
 func GetConsoleWindow() HWND {
