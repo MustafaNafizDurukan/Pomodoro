@@ -4,7 +4,6 @@ package event
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"time"
 
@@ -45,6 +44,11 @@ func New(f *font.Font) (*Event, error) {
 // Start starts pomodoro timer
 func (e *Event) Start() {
 	wilRun := true
+	defer func() {
+		console.Clear()
+		console.Flush()
+	}()
+
 	timer.Start(e.TimeLeft)
 
 loop:
@@ -52,7 +56,8 @@ loop:
 		select {
 		case ev := <-e.queues:
 			if ev.Ch == 'q' || ev.Ch == 'Q' {
-				if e.quit() {
+				d, _ := convert.StringToDate("10s")
+				if e.count(d, print.Quit) {
 					os.Exit(1)
 				}
 			}
@@ -82,13 +87,15 @@ loop:
 	print.Zero(e.f)
 }
 
-func (e *Event) quit() bool {
-	console.Clear()
-	console.Flush()
+type callBack func(d time.Duration)
+
+func (e *Event) count(d time.Duration, cb callBack) bool {
+	defer func() {
+		console.Clear()
+		console.Flush()
+	}()
 
 	wilRun := true
-
-	d, _ := convert.StringToDate("10s")
 
 	timer.Start(d)
 
@@ -109,14 +116,7 @@ loop:
 			termbox.Sync()
 
 			if wilRun {
-				x, y := console.MidPoint()
-				msg := fmt.Sprintf("Are you sure want to quit? (No:n, Yes:y) %s", d.String())
-				console.Print(msg, termbox.ColorDefault, termbox.ColorDefault, x-len(msg)/2, y)
-				console.Flush()
-
-				msg = "Current session will be lost."
-				console.Print(msg, termbox.ColorDefault, termbox.ColorDefault, x-len(msg)/2, y+2)
-				console.Flush()
+				cb(d)
 
 				timer.Decrease(&d)
 				wilRun = false
@@ -130,7 +130,5 @@ loop:
 		}
 	}
 
-	console.Clear()
-	console.Flush()
 	return false
 }

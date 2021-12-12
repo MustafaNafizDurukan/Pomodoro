@@ -3,6 +3,7 @@
 package win32api
 
 import (
+	"fmt"
 	"syscall"
 	"unsafe"
 
@@ -44,8 +45,10 @@ func FlashWindowEx() error {
 	fwi.uCount = 0
 	fwi.dwTimeout = 1000
 
-	// a := uintptr(unsafe.Pointer(&fwi))
-	// fmt.Println(&fwi, unsafe.Pointer(a), a)
+	a := unsafe.Pointer(&fwi)
+	fmt.Println(*(*FLASHWINFO)(a))
+	fmt.Println(unsafe.Pointer(&fwi), uintptr(unsafe.Pointer(&fwi)))
+
 	r0, _, _ := procFlashWindowEx.Call(uintptr(unsafe.Pointer(&fwi)))
 	// fmt.Println(r0, e0)
 	if r0 < 0 {

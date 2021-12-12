@@ -56,7 +56,13 @@ func main() {
 		return
 	}
 
-	p, err := pomo.New(params.PomodoroTime, params.ShortBreakTime, params.LongBreakTime, e)
+	p, err := pomo.New(
+		params.PomodoroTime,
+		params.ShortBreakTime,
+		params.LongBreakTime,
+		params.WillWait,
+		e,
+	)
 	if err != nil {
 		fmt.Println(err)
 		return

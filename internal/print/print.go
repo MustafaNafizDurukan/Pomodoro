@@ -1,6 +1,7 @@
 package print
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/mustafanafizdurukan/pomodoro/pkg/console"
@@ -63,4 +64,17 @@ func calculatePoints(f *font.Font) {
 
 	f.Position.X = x - w/2
 	f.Position.Y = y - h/2
+}
+
+// Quit prints quit message when you press q on keyboard
+func Quit(d time.Duration) {
+	console.Clear()
+	x, y := console.MidPoint()
+	msg := fmt.Sprintf("Are you sure want to quit? (No:n, Yes:y) %s", d.String())
+	console.Print(msg, termbox.ColorDefault, termbox.ColorDefault, x-len(msg)/2, y)
+	console.Flush()
+
+	msg = "Current session will be lost."
+	console.Print(msg, termbox.ColorDefault, termbox.ColorDefault, x-len(msg)/2, y+2)
+	console.Flush()
 }
