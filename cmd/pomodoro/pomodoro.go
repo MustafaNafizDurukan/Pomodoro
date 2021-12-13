@@ -75,4 +75,5 @@ func (p *paramsT) equalizeToConfig() {
 	p.LongBreakTime = config.Config.LongBreakTime
 	p.PomodoroTime = config.Config.PomodoroTime
 	p.ShortBreakTime = config.Config.ShortBreakTime
+	p.WillWait = config.Config.WillWait
 }

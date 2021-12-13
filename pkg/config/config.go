@@ -18,6 +18,7 @@ type configuration struct {
 	PomodoroTime   string `yaml:"PomodoroTime"`
 	LongBreakTime  string `yaml:"LongBreakTime"`
 	ShortBreakTime string `yaml:"ShortBreakTime"`
+	WillWait       bool   `yaml:"WillWait"`
 }
 
 func EndsWithAny(haystack string, caseInsensitive bool, needles ...string) bool {
