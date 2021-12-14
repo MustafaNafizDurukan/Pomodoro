@@ -40,7 +40,7 @@ func FlashWindowEx() error {
 	var fwi FLASHWINFO
 	fwi.cbSize = uint(unsafe.Sizeof(fwi))
 
-	fwi.hwnd = GetConsoleWindow()
+	fwi.hwnd = getConsoleWindow()
 	fwi.dwFlags = uint32(FLASHW_ALL | FLASHW_TIMERNOFG)
 	fwi.uCount = 0
 	fwi.dwTimeout = 1000
@@ -57,7 +57,7 @@ func FlashWindowEx() error {
 	return nil
 }
 
-func GetConsoleWindow() HWND {
+func getConsoleWindow() HWND {
 	ret, _, _ := procGetConsoleWindow.Call()
 
 	return HWND(ret)
@@ -65,7 +65,7 @@ func GetConsoleWindow() HWND {
 
 var isHidden bool = false
 
-func ShowWindow(hwnd HWND, cmdshow int) bool {
+func showWindow(hwnd HWND, cmdshow int) bool {
 	ret, _, _ := procShowWindow.Call(
 		uintptr(hwnd),
 		uintptr(cmdshow))
@@ -92,13 +92,13 @@ const (
 
 // HideConsoleWindow hides the console window
 func HideConsoleWindow() {
-	ShowWindow(GetConsoleWindow(), SW_HIDE)
+	showWindow(getConsoleWindow(), SW_HIDE)
 	isHidden = true
 }
 
 // ShowConsoleWindow shows the console window
 func ShowConsoleWindow() {
-	ShowWindow(GetConsoleWindow(), SW_SHOW)
+	showWindow(getConsoleWindow(), SW_SHOW)
 	isHidden = false
 }
 

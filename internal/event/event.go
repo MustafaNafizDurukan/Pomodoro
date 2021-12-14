@@ -11,6 +11,7 @@ import (
 	"github.com/mustafanafizdurukan/pomodoro/pkg/console"
 	"github.com/mustafanafizdurukan/pomodoro/pkg/convert"
 	"github.com/mustafanafizdurukan/pomodoro/pkg/font"
+	"github.com/mustafanafizdurukan/pomodoro/pkg/play"
 	"github.com/mustafanafizdurukan/pomodoro/pkg/timer"
 	"github.com/nsf/termbox-go"
 )
@@ -67,6 +68,9 @@ loop:
 			if ev.Ch == 'c' || ev.Ch == 'C' {
 				timer.Start(e.TimeLeft)
 			}
+			if ev.Type == termbox.EventKey && (ev.Key == termbox.KeySpace) {
+				break loop
+			}
 		case <-timer.Ticker.C:
 			termbox.Sync()
 			timer.Decrease(&e.TimeLeft)
@@ -84,6 +88,7 @@ loop:
 		}
 	}
 
+	go play.Sound()
 	print.Zero(e.f)
 }
 
