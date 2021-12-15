@@ -46,11 +46,11 @@ func Zero(f *font.Font) {
 	f.Text = "00:00"
 
 	for i := 0; i < 3; i++ {
-		f.Echo()
+		console.Clear()
 		console.Flush()
 		time.Sleep(time.Second / 2)
 
-		console.Clear()
+		f.Echo()
 		console.Flush()
 		time.Sleep(time.Second / 2)
 	}

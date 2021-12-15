@@ -1,4 +1,4 @@
 PomodoroTime: "25m"
 LongBreakTime: "20m"
 ShortBreakTime: "5m"
-WillWait: false
+WillWait: true

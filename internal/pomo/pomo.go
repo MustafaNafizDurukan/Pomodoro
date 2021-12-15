@@ -3,7 +3,6 @@ package pomo
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/mustafanafizdurukan/pomodoro/internal/event"
@@ -50,24 +49,20 @@ func New(pomoTime, shortBreak, longBreak string, WillWait bool, e *event.Event) 
 // Start starts pomodoro
 func (p *Pomo) Start() error {
 	for i := 0; i < 10240; i++ {
-		if p.willWait {
-			fmt.Scanln()
-		}
-
 		if i%2 == 0 {
 			p.e.TimeLeft = p.time
-			p.e.Start()
+			p.e.Start(p.willWait)
 			continue
 		}
 
 		if i%8 == 7 {
 			p.e.TimeLeft = p.longBreak
-			p.e.Start()
+			p.e.Start(p.willWait)
 			continue
 		}
 
 		p.e.TimeLeft = p.shortBreak
-		p.e.Start()
+		p.e.Start(p.willWait)
 	}
 
 	return nil

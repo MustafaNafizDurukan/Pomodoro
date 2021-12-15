@@ -4,6 +4,7 @@ package event
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"time"
 
@@ -43,7 +44,17 @@ func New(f *font.Font) (*Event, error) {
 }
 
 // Start starts pomodoro timer
-func (e *Event) Start() {
+func (e *Event) Start(willWait bool) {
+	print.Time(e.f, e.TimeLeft)
+
+	if willWait {
+		fmt.Scanln()
+	}
+
+	e.start()
+}
+
+func (e *Event) start() {
 	wilRun := true
 	defer func() {
 		console.Clear()
@@ -75,7 +86,6 @@ loop:
 			termbox.Sync()
 			timer.Decrease(&e.TimeLeft)
 			if wilRun {
-				console.Clear()
 				print.Time(e.f, e.TimeLeft)
 
 				wilRun = false
