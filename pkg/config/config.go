@@ -19,6 +19,7 @@ type configuration struct {
 	LongBreakTime  string `yaml:"LongBreakTime"`
 	ShortBreakTime string `yaml:"ShortBreakTime"`
 	WillWait       bool   `yaml:"WillWait"`
+	Music          string `yaml:"Music"`
 }
 
 func EndsWithAny(haystack string, caseInsensitive bool, needles ...string) bool {

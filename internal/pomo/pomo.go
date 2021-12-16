@@ -13,6 +13,7 @@ type Pomo struct {
 	shortBreak time.Duration
 	longBreak  time.Duration
 	willWait   bool
+	music      string
 	e          *event.Event
 }
 
@@ -21,7 +22,7 @@ var (
 )
 
 // New creates new Pomo struct. If given timer string can not be parsed it fails.
-func New(pomoTime, shortBreak, longBreak string, WillWait bool, e *event.Event) (*Pomo, error) {
+func New(pomoTime, shortBreak, longBreak string, WillWait bool, music string, e *event.Event) (*Pomo, error) {
 	pomoTimeD, err := time.ParseDuration(pomoTime)
 	if err != nil {
 		return nil, errParse
@@ -42,6 +43,7 @@ func New(pomoTime, shortBreak, longBreak string, WillWait bool, e *event.Event) 
 		shortBreak: shortBreakD,
 		longBreak:  longBreakD,
 		willWait:   WillWait,
+		music:      music,
 		e:          e,
 	}, err
 }
@@ -51,18 +53,18 @@ func (p *Pomo) Start() error {
 	for i := 0; i < 10240; i++ {
 		if i%2 == 0 {
 			p.e.TimeLeft = p.time
-			p.e.Start(p.willWait)
+			p.e.Start(p.willWait, p.music)
 			continue
 		}
 
 		if i%8 == 7 {
 			p.e.TimeLeft = p.longBreak
-			p.e.Start(p.willWait)
+			p.e.Start(p.willWait, p.music)
 			continue
 		}
 
 		p.e.TimeLeft = p.shortBreak
-		p.e.Start(p.willWait)
+		p.e.Start(p.willWait, p.music)
 	}
 
 	return nil

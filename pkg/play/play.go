@@ -1,6 +1,7 @@
 package play
 
 import (
+	"errors"
 	"io"
 	"os"
 
@@ -9,16 +10,26 @@ import (
 	"github.com/mustafanafizdurukan/pomodoro/pkg/list"
 )
 
-func Sound() error {
+var (
+	errOpen   = errors.New("play: given music could not be found")
+	errDecode = errors.New("play: given music could not be decode")
+	errPlay   = errors.New("play: given music could not be played")
+)
+
+func Sound(music string) error {
+	if music == "" {
+		list.Sound()
+	}
+
 	f, err := os.Open(list.Sound())
 	if err != nil {
-		return err
+		return errOpen
 	}
 	defer f.Close()
 
 	d, err := mp3.NewDecoder(f)
 	if err != nil {
-		return err
+		return errDecode
 	}
 
 	c, err := oto.NewContext(d.SampleRate(), 2, 2, 8192)
@@ -31,7 +42,7 @@ func Sound() error {
 	defer p.Close()
 
 	if _, err := io.Copy(p, d); err != nil {
-		return err
+		return errPlay
 	}
 	return nil
 }

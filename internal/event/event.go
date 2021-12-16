@@ -44,17 +44,17 @@ func New(f *font.Font) (*Event, error) {
 }
 
 // Start starts pomodoro timer
-func (e *Event) Start(willWait bool) {
+func (e *Event) Start(willWait bool, music string) {
 	print.Time(e.f, e.TimeLeft)
 
 	if willWait {
 		fmt.Scanln()
 	}
 
-	e.start()
+	e.start(music)
 }
 
-func (e *Event) start() {
+func (e *Event) start(music string) {
 	wilRun := true
 	defer func() {
 		console.Clear()
@@ -98,7 +98,7 @@ loop:
 		}
 	}
 
-	go play.Sound()
+	go play.Sound(music)
 	print.Zero(e.f)
 }
 

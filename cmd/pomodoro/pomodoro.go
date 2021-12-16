@@ -17,11 +17,6 @@ import (
 
 func main() {
 	var err error
-	// time.Sleep(2 * time.Second)
-	// err = win32api.FlashWindowEx()
-	// fmt.Println(err)
-	// return
-
 	defer panik.Catch()
 
 	params.Args, err = flags.Parse(&params, os.Args)
@@ -61,6 +56,7 @@ func main() {
 		params.ShortBreakTime,
 		params.LongBreakTime,
 		params.WillWait,
+		params.Music,
 		e,
 	)
 	if err != nil {
@@ -76,4 +72,5 @@ func (p *paramsT) equalizeToConfig() {
 	p.PomodoroTime = config.Config.PomodoroTime
 	p.ShortBreakTime = config.Config.ShortBreakTime
 	p.WillWait = config.Config.WillWait
+	p.Music = config.Config.Music
 }
