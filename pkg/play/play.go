@@ -44,5 +44,6 @@ func Sound(music string) error {
 	if _, err := io.Copy(p, d); err != nil {
 		return errPlay
 	}
+
 	return nil
 }
