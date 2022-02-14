@@ -2,12 +2,12 @@ package config
 
 import (
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 
+	"github.com/mustafanafizdurukan/pomodoro/pkg/logs"
 	"gopkg.in/yaml.v2"
 )
 
@@ -19,7 +19,6 @@ type configuration struct {
 	LongBreakTime  string `yaml:"LongBreakTime"`
 	ShortBreakTime string `yaml:"ShortBreakTime"`
 	WillWait       bool   `yaml:"WillWait"`
-	Music          string `yaml:"Music"`
 }
 
 func EndsWithAny(haystack string, caseInsensitive bool, needles ...string) bool {
@@ -54,22 +53,22 @@ func FileExists(filePath string) bool {
 // Providing an empty path for filePath parameter will load the default config file
 func Init(name string) error {
 	var err error
-	// Save to global path
+
 	path = name
 	if !EndsWithAny(path, true, ".yml") {
 		path = path + ".yml"
 	}
-	// Make sure it exists
+
 	path, err = filepath.Abs(path)
 	if err != nil {
-		log.Printf("Can not get absolute path for config path: %s, err: %v \n", name, err)
+		logs.ERROR.Printf("Can not get absolute path for config path: %s, err: %v \n", name, err)
 		return err
 	}
-	// Create directories
+
 	_ = os.MkdirAll(filepath.Dir(path), os.ModePerm)
-	// Create default config if not exists
+
 	if !FileExists(path) {
-		log.Println("The given file does not exist")
+		logs.ERROR.Println("The given file does not exist")
 		return err
 	}
 	return load(path)
@@ -85,12 +84,12 @@ func load(filePath string) error {
 
 	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		log.Printf("Can not read config file: %s, %v \n", filePath, err)
+		logs.ERROR.Printf("Can not read config file: %s, %v \n", filePath, err)
 		return err
 	}
 	err = yaml.Unmarshal(data, &Config)
 	if err != nil {
-		log.Printf("Can not deserialize yaml file: %s, %v \n", filePath, err)
+		logs.ERROR.Printf("Can not deserialize yaml file: %s, %v \n", filePath, err)
 		return err
 	}
 	return nil
@@ -106,12 +105,12 @@ func (self *configuration) save() error {
 
 	data, err := yaml.Marshal(self)
 	if err != nil {
-		log.Printf("Can not serialize yaml file: %s, %v \n", path, err)
+		logs.ERROR.Printf("Can not serialize yaml file: %s, %v \n", path, err)
 		return err
 	}
 	err = ioutil.WriteFile(path, data, os.ModePerm)
 	if err != nil {
-		log.Printf("Can not write yaml file: %s, %v \n", path, err)
+		logs.ERROR.Printf("Can not write yaml file: %s, %v \n", path, err)
 		return err
 	}
 	return nil

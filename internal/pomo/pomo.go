@@ -5,16 +5,20 @@ import (
 	"errors"
 	"time"
 
-	"github.com/mustafanafizdurukan/pomodoro/internal/event"
+	"github.com/mustafanafizdurukan/pomodoro/pkg/console"
+	"github.com/mustafanafizdurukan/pomodoro/pkg/font"
+	"github.com/mustafanafizdurukan/pomodoro/pkg/logs"
+	"github.com/nsf/termbox-go"
 )
 
 type Pomo struct {
-	time       time.Duration
-	shortBreak time.Duration
-	longBreak  time.Duration
-	willWait   bool
-	music      string
-	e          *event.Event
+	time               time.Duration
+	shortBreak         time.Duration
+	PomNumber          int
+	CompletedPomNumber int
+	CompletedDates     []time.Time
+
+	t *Timer
 }
 
 var (
@@ -22,7 +26,19 @@ var (
 )
 
 // New creates new Pomo struct. If given timer string can not be parsed it fails.
-func New(pomoTime, shortBreak, longBreak string, WillWait bool, music string, e *event.Event) (*Pomo, error) {
+func New(pomoTime, shortBreak string, PomNumber int) (*Pomo, error) {
+	_, y := console.SizeSixteenOver(8)
+	x, _ := console.MidPoint()
+	pos := font.Position{x, y}
+
+	f := font.New(termbox.ColorCyan, termbox.ColorDefault, &pos)
+
+	t, err := new(f)
+	if err != nil {
+		logs.ERROR.Println(err)
+		return nil, err
+	}
+
 	pomoTimeD, err := time.ParseDuration(pomoTime)
 	if err != nil {
 		return nil, errParse
@@ -33,39 +49,34 @@ func New(pomoTime, shortBreak, longBreak string, WillWait bool, music string, e 
 		return nil, errParse
 	}
 
-	longBreakD, err := time.ParseDuration(longBreak)
-	if err != nil {
-		return nil, errParse
-	}
-
 	return &Pomo{
 		time:       pomoTimeD,
 		shortBreak: shortBreakD,
-		longBreak:  longBreakD,
-		willWait:   WillWait,
-		music:      music,
-		e:          e,
+		PomNumber:  PomNumber,
+		t:          t,
 	}, err
 }
 
-// Start starts pomodoro
-func (p *Pomo) Start() error {
-	for i := 0; i < 10240; i++ {
-		if i%2 == 0 {
-			p.e.TimeLeft = p.time
-			p.e.Start(p.willWait, p.music)
-			continue
-		}
-
-		if i%8 == 7 {
-			p.e.TimeLeft = p.longBreak
-			p.e.Start(p.willWait, p.music)
-			continue
-		}
-
-		p.e.TimeLeft = p.shortBreak
-		p.e.Start(p.willWait, p.music)
+// Start starts pomodoro and if all pomodoros completed returns true
+func (p *Pomo) StartPomodoro() bool {
+	if p.CompletedPomNumber == p.PomNumber {
+		return true
 	}
 
-	return nil
+	isFinishedNormally := p.t.Start(p.time)
+
+	if isFinishedNormally {
+		p.CompletedPomNumber++
+		p.CompletedDates = append(p.CompletedDates, time.Now())
+	}
+
+	return p.CompletedPomNumber == p.PomNumber
+}
+
+func (p *Pomo) StartBreak() {
+	p.t.Start(p.shortBreak)
+}
+
+func (p *Pomo) RemainingPomodoroCount() int {
+	return p.PomNumber - p.CompletedPomNumber
 }

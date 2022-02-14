@@ -7,7 +7,6 @@ import (
 	"github.com/mustafanafizdurukan/pomodoro/pkg/console"
 	"github.com/mustafanafizdurukan/pomodoro/pkg/convert"
 	"github.com/mustafanafizdurukan/pomodoro/pkg/font"
-	"github.com/mustafanafizdurukan/pomodoro/pkg/list"
 	"github.com/nsf/termbox-go"
 )
 
@@ -29,7 +28,7 @@ func Time(f *font.Font, TimeLeft time.Duration) {
 
 	m := TimeLeft.Round(time.Second)
 	if int(m.Seconds())%10 == 0 {
-		pomoC = list.Message()
+		pomoC = message()
 	}
 
 	_, y := console.SizeSixteenOver(11)
@@ -77,4 +76,20 @@ func Quit(d time.Duration) {
 	msg = "Current session will be lost."
 	console.Print(msg, termbox.ColorDefault, termbox.ColorDefault, x-len(msg)/2, y+2)
 	console.Flush()
+}
+
+// Wait prints wait message apter pomodoro or break finished
+func Wait(isPomodoro bool) {
+	console.Clear()
+	defer console.Flush()
+
+	x, y := console.MidPoint()
+
+	str := "the break"
+	if isPomodoro {
+		str = "pomodoro"
+	}
+
+	msg := fmt.Sprintf("Press any key once to start %s", str)
+	console.Print(msg, termbox.ColorDefault, termbox.ColorDefault, x-len(msg)/2, y)
 }

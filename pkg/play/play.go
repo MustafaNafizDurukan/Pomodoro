@@ -7,22 +7,23 @@ import (
 
 	"github.com/hajimehoshi/go-mp3"
 	"github.com/hajimehoshi/oto"
-	"github.com/mustafanafizdurukan/pomodoro/pkg/list"
 )
 
 var (
-	errOpen   = errors.New("play: given music could not be found")
-	errDecode = errors.New("play: given music could not be decode")
-	errPlay   = errors.New("play: given music could not be played")
+	errOpen   = errors.New("given sound could not be found")
+	errDecode = errors.New("given sound could not be decode")
+	errPlay   = errors.New("given sound could not be played")
 )
 
-func Sound(music string) error {
-	if music == "" {
-		list.Sound()
+func Sound() error {
+	m, err := sound()
+	if err != nil {
+		return err
 	}
 
-	f, err := os.Open(list.Sound())
+	f, err := os.Open(m)
 	if err != nil {
+		subSound(m)
 		return errOpen
 	}
 	defer f.Close()

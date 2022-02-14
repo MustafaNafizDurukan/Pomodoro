@@ -1,35 +1,27 @@
-// Package event implements functions to
-// TODO(mustafa): Complete here
-package event
+package pomo
 
 import (
-	"errors"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/mustafanafizdurukan/pomodoro/internal/print"
 	"github.com/mustafanafizdurukan/pomodoro/pkg/console"
 	"github.com/mustafanafizdurukan/pomodoro/pkg/convert"
 	"github.com/mustafanafizdurukan/pomodoro/pkg/font"
+	"github.com/mustafanafizdurukan/pomodoro/pkg/logs"
 	"github.com/mustafanafizdurukan/pomodoro/pkg/play"
-	"github.com/mustafanafizdurukan/pomodoro/pkg/timer"
+	"github.com/mustafanafizdurukan/pomodoro/pkg/ticker"
 	"github.com/nsf/termbox-go"
 )
 
-var (
-	errParse = errors.New("event: given time string could not be parsed")
-)
-
-type Event struct {
-	TimeLeft time.Duration
-	f        *font.Font
-	queues   chan termbox.Event
+type Timer struct {
+	queues chan termbox.Event
+	f      *font.Font
 }
 
 // New returns pointer of event structure. If given string could not be parsed It returns error.
 // Time string should be 1h6m, 23m3s format.
-func New(f *font.Font) (*Event, error) {
+func new(f *font.Font) (*Timer, error) {
 	queues := make(chan termbox.Event)
 	go func() {
 		for {
@@ -37,74 +29,86 @@ func New(f *font.Font) (*Event, error) {
 		}
 	}()
 
-	return &Event{
+	return &Timer{
 		queues: queues,
 		f:      f,
 	}, nil
 }
 
-// Start starts pomodoro timer
-func (e *Event) Start(willWait bool, music string) {
-	print.Time(e.f, e.TimeLeft)
+func (t *Timer) Wait(willWait bool, timeLeft time.Duration) {
+	print.Time(t.f, timeLeft)
 
 	if willWait {
 		fmt.Scanln()
 	}
-
-	e.start(music)
 }
 
-func (e *Event) start(music string) {
+// Start starts pomodoro timer and if pomodoro finishes normally it returns true.
+func (t *Timer) Start(timeLeft time.Duration) bool {
+	return t.start(timeLeft)
+}
+
+func (t *Timer) start(timeLeft time.Duration) bool {
+	var err error
 	wilRun := true
 	defer func() {
 		console.Clear()
 		console.Flush()
 	}()
 
-	timer.Start(e.TimeLeft)
+	ticker.Start(timeLeft)
 
 loop:
 	for {
 		select {
-		case ev := <-e.queues:
+		case ev := <-t.queues:
 			if ev.Ch == 'q' || ev.Ch == 'Q' {
 				d, _ := convert.StringToDate("10s")
-				if e.count(d, print.Quit) {
-					os.Exit(1)
+				if t.count(d, print.Quit) {
+					return false
+					// os.Exit(1)
 				}
 			}
 			if ev.Ch == 'p' || ev.Ch == 'P' {
-				timer.Stop()
+				ticker.Stop()
 			}
 			if ev.Ch == 'c' || ev.Ch == 'C' {
-				timer.Start(e.TimeLeft)
+				ticker.Start(timeLeft)
 			}
-			if ev.Type == termbox.EventKey && (ev.Key == termbox.KeySpace) {
-				break loop
-			}
-		case <-timer.Ticker.C:
+			// if ev.Type == termbox.EventKey && (ev.Key == termbox.KeySpace) {
+			// 	break loop
+			// }
+		case <-ticker.Ticker.C:
 			termbox.Sync()
-			timer.Decrease(&e.TimeLeft)
+			ticker.Decrease(&timeLeft)
 			if wilRun {
-				print.Time(e.f, e.TimeLeft)
+				print.Time(t.f, timeLeft)
 
 				wilRun = false
 				break
 			}
 			wilRun = true
-		case <-timer.Timer.C:
+		case <-ticker.Timer.C:
 			console.Clear()
 			break loop
 		}
 	}
 
-	go play.Sound(music)
-	print.Zero(e.f)
+	go func() {
+		err = play.Sound()
+		if err != nil {
+			logs.ERROR.Println(err)
+		}
+	}()
+
+	print.Zero(t.f)
+
+	return true
 }
 
-type callBack func(d time.Duration)
+// type callBack func(d time.Duration)
 
-func (e *Event) count(d time.Duration, cb callBack) bool {
+func (t *Timer) count(d time.Duration, callBack func(d time.Duration)) bool {
 	defer func() {
 		console.Clear()
 		console.Flush()
@@ -112,12 +116,12 @@ func (e *Event) count(d time.Duration, cb callBack) bool {
 
 	wilRun := true
 
-	timer.Start(d)
+	ticker.Start(d)
 
 loop:
 	for {
 		select {
-		case ev := <-e.queues:
+		case ev := <-t.queues:
 			if ev.Ch == 'q' || ev.Ch == 'Q' {
 				return true
 			}
@@ -127,19 +131,19 @@ loop:
 			if ev.Ch == 'y' || ev.Ch == 'Y' {
 				return true
 			}
-		case <-timer.Ticker.C:
+		case <-ticker.Ticker.C:
 			termbox.Sync()
 
 			if wilRun {
-				cb(d)
+				callBack(d)
 
-				timer.Decrease(&d)
+				ticker.Decrease(&d)
 				wilRun = false
 				break
 			}
-			timer.Decrease(&d)
+			ticker.Decrease(&d)
 			wilRun = true
-		case <-timer.Timer.C:
+		case <-ticker.Timer.C:
 			console.Clear()
 			break loop
 		}

@@ -1,4 +1,4 @@
-package list
+package print
 
 import "math/rand"
 
@@ -21,7 +21,7 @@ var messages = []string{
 }
 
 // Message returns random message from messages list
-func Message() string {
+func message() string {
 	randNum := rand.Intn(len(messages) - 1)
 	return messages[randNum]
 }
