@@ -20,7 +20,7 @@ var messages = []string{
 	"Keep going",
 }
 
-// Message returns random message from messages list
+// message returns random message from messages list
 func message() string {
 	randNum := rand.Intn(len(messages) - 1)
 	return messages[randNum]

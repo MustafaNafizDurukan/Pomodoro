@@ -1,11 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	_ "os"
 
-	"github.com/mustafanafizdurukan/pomodoro/internal/home"
+	"github.com/mustafanafizdurukan/pomodoro/internal/app"
 	"github.com/mustafanafizdurukan/pomodoro/internal/pomo"
 	"github.com/mustafanafizdurukan/pomodoro/internal/task"
 	"github.com/mustafanafizdurukan/pomodoro/pkg/config"
@@ -63,13 +64,15 @@ func main() {
 
 	DnsProxy.Start()
 
-	app := home.New(t, DnsProxy)
+	home := app.New(t, DnsProxy)
 
-	app.AddEventListener(func(e *home.Event) {
-		app.DNS.IsBlockingActive = e.IsProxyEnabled
+	home.AddEventListener(func(e *app.Event) {
+		home.DNS.IsBlockingActive = e.IsProxyEnabled
 	})
 
-	app.Run()
+	home.Run()
+
+	fmt.Scanln()
 }
 
 func (p *paramsT) equalizeToConfig() {

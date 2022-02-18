@@ -21,12 +21,14 @@ const (
 	expirationTime = 20 * time.Minute
 )
 
+// Creates Cache struct.
 func New() *Cache {
 	return &Cache{
 		elements: make(map[string]Element, 30),
 	}
 }
 
+// Get takes domain name. If domain name exists in cache returns answer otherwise returns false.
 func (c *Cache) Get(d string) (Element, bool) {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
@@ -44,6 +46,7 @@ func (c *Cache) Get(d string) (Element, bool) {
 	return element, true
 }
 
+// Set appends domain to the cache.
 func (c *Cache) Set(d string, answer *dns.RR) {
 	c.mutex.Lock()
 

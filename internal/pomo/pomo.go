@@ -1,14 +1,12 @@
-// Package pomo implements functions that actions about pomodoro
+// Package pomo implements functions that actions about pomodoro.
 package pomo
 
 import (
 	"errors"
 	"time"
 
-	"github.com/mustafanafizdurukan/pomodoro/pkg/console"
-	"github.com/mustafanafizdurukan/pomodoro/pkg/font"
 	"github.com/mustafanafizdurukan/pomodoro/pkg/logs"
-	"github.com/nsf/termbox-go"
+	"github.com/mustafanafizdurukan/pomodoro/pkg/timer"
 )
 
 type Pomo struct {
@@ -18,22 +16,16 @@ type Pomo struct {
 	CompletedPomNumber int
 	CompletedDates     []time.Time
 
-	t *Timer
+	Timer *timer.Timer
 }
 
 var (
 	errParse = errors.New("pomo: given time string could not be parsed")
 )
 
-// New creates new Pomo struct. If given timer string can not be parsed it fails.
+// New creates Pomo struct. If given timer string can not be parsed it fails.
 func New(pomoTime, shortBreak string, PomNumber int) (*Pomo, error) {
-	_, y := console.SizeSixteenOver(8)
-	x, _ := console.MidPoint()
-	pos := font.Position{x, y}
-
-	f := font.New(termbox.ColorCyan, termbox.ColorDefault, &pos)
-
-	t, err := new(f)
+	t, err := timer.New()
 	if err != nil {
 		logs.ERROR.Println(err)
 		return nil, err
@@ -53,30 +45,40 @@ func New(pomoTime, shortBreak string, PomNumber int) (*Pomo, error) {
 		time:       pomoTimeD,
 		shortBreak: shortBreakD,
 		PomNumber:  PomNumber,
-		t:          t,
+		Timer:      t,
 	}, err
 }
 
-// Start starts pomodoro and if all pomodoros completed returns true
+// StartPomodoro starts pomodoro and if all pomodoros completed returns true.
 func (p *Pomo) StartPomodoro() bool {
 	if p.CompletedPomNumber == p.PomNumber {
 		return true
 	}
 
-	isFinishedNormally := p.t.Start(p.time)
+	isFinishedNormally := p.Timer.Start(p.time)
 
 	if isFinishedNormally {
 		p.CompletedPomNumber++
 		p.CompletedDates = append(p.CompletedDates, time.Now())
 	}
 
+	p.assignTaskInfo()
+
 	return p.CompletedPomNumber == p.PomNumber
 }
 
+// StartBreak starts break.
 func (p *Pomo) StartBreak() {
-	p.t.Start(p.shortBreak)
+	p.Timer.Start(p.shortBreak)
 }
 
+// assignTaskInfo assigns all pomodoro count and completed pomodoro count to TaskInfo structure.
+func (p *Pomo) assignTaskInfo() {
+	p.Timer.TaskInfo.PomNumber = p.PomNumber
+	p.Timer.TaskInfo.CompletedPomNumber = p.CompletedPomNumber
+}
+
+// RemainingPomodoroCount returns remaining pomodoro count.
 func (p *Pomo) RemainingPomodoroCount() int {
 	return p.PomNumber - p.CompletedPomNumber
 }

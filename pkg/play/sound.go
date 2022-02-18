@@ -17,6 +17,7 @@ var (
 	errDirNotOpened = errors.New("directory could not opened")
 )
 
+// sound adds sounds that is in sounds directory to the sound names list.
 func sound() (string, error) {
 	if len(soundNames) > 0 {
 		randNum := rand.Intn(len(soundNames) - 1)
@@ -68,6 +69,7 @@ func sound() (string, error) {
 	return soundNames[randNum], nil
 }
 
+// subSound removes sound from sound list.
 func subSound(sound string) {
 	for i, s := range soundNames {
 		if s == sound {

@@ -21,12 +21,13 @@ type Task struct {
 	Title         string
 	Message       string
 	AddedDate     time.Time
-	CompletedDate time.Time //01-02-2022 18:06:56
+	CompletedDate time.Time
 
 	P        *pomo.Pomo
 	willWait bool
 }
 
+// New creates Task structure.
 func New(section, title, message string, willWait bool, pomodoro *pomo.Pomo) *Task {
 	task := &Task{
 		id:        constants.TaskId,
@@ -41,12 +42,15 @@ func New(section, title, message string, willWait bool, pomodoro *pomo.Pomo) *Ta
 	return task
 }
 
+// IsCompleted if all pomodoros finished it returns true.
 func (t *Task) IsCompleted() bool {
 	return !t.CompletedDate.IsZero()
 }
 
 // RunOnce runs a pomodoro and if all pomodoros completed returns true
 func (t *Task) RunOnce(isPomodoro bool) bool {
+	t.assignTaskInfo()
+
 	if isPomodoro {
 		if t.P.StartPomodoro() {
 			t.CompletedDate = time.Now()
@@ -59,6 +63,14 @@ func (t *Task) RunOnce(isPomodoro bool) bool {
 	return false
 }
 
+// assignTaskInfo assigns all task section, title and message to TaskInfo structure.
+func (t *Task) assignTaskInfo() {
+	t.P.Timer.TaskInfo.Section = t.Section
+	t.P.Timer.TaskInfo.Title = t.Title
+	t.P.Timer.TaskInfo.Message = t.Message
+}
+
+// Wait waits after pomodoro or break finished.
 func (t *Task) Wait(isPomodoro bool) {
 	if !t.willWait {
 		return
@@ -69,6 +81,7 @@ func (t *Task) Wait(isPomodoro bool) {
 	fmt.Scanln()
 }
 
+// AddPomodoro increase pomodoro count.
 func (t *Task) AddPomodoro(count int) error {
 	if count > 10 {
 		return errAddPomodoro
@@ -81,6 +94,7 @@ func (t *Task) AddPomodoro(count int) error {
 	return nil
 }
 
+// SubPomodoro decrease pomodoro count.
 func (t *Task) SubPomodoro(count int) error {
 	dummy := t.P.PomNumber - count
 
@@ -96,43 +110,3 @@ func (t *Task) SubPomodoro(count int) error {
 
 	return nil
 }
-
-/*
-type homeContext struct {
-	Task    *task.Task
-	DNS	    *proxy.DNS
-}
-
-type DNS struct {
-	Cache            *cache.Cache
-	IsBlockingActive bool
-	blockedServices  []string
-}
-
-type Task struct {
-	Section	           string	//(Daily, Job, ...) Her sectionın belirli özelliği olabilecek mesela Daily sectionının taskları her gün otomatik olarak oluşturulacak
-	Title              string
-	Message            string
-	AddedDate 		   time.Duration
-	CompletedDate 	   time.Duration    //01-02-2022 18:06:56
-
-	Pomodoro           *pomo.Pomodoro
-}
-
-type Pomo struct {
-	time               time.Duration
-	shortBreak         time.Duration
-	PomNumber          int
-	CompletedPomNumber int
-	CompletedDates 	   []time.Duration
-
-	willWait           bool
-	t                  *Timer
-}
-
-type Timer struct {
-	TimeLeft time.Duration
-	queues   chan termbox.Event
-	f        *font.Font
-}
-*/

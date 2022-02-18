@@ -4,7 +4,7 @@ import "strings"
 
 var serviceRules []string
 
-// convert array to map
+// InitBlockedServices appends services to be blocked.
 func (d *DNS) InitBlockedServices(svcNames ...string) {
 	for _, svcName := range svcNames {
 		for _, service := range serviceRulesArray {

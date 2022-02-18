@@ -21,7 +21,7 @@ func Size() (int, int) {
 }
 
 // MidPoint returns middle point of console
-func MidPoint() (int, int) {
+func MidPoints() (int, int) {
 	w, h := Size()
 	return w / 2, h / 2
 }
@@ -32,11 +32,11 @@ func MidPoint() (int, int) {
 func SizeSixteenOver(number float64) (int, int) {
 	w, h := Size()
 	if w < 16 || h < 16 {
-		return MidPoint()
+		return MidPoints()
 	}
 
 	if number > 15 || number < 1 {
-		return MidPoint()
+		return MidPoints()
 	}
 
 	w = int(math.Round((float64(w) / 16.0) * number))
@@ -51,11 +51,11 @@ func SizeSixteenOver(number float64) (int, int) {
 func SizeEightOver(number float64) (int, int) {
 	w, h := Size()
 	if w < 8 || h < 8 {
-		return MidPoint()
+		return MidPoints()
 	}
 
 	if number > 7 || number < 1 {
-		return MidPoint()
+		return MidPoints()
 	}
 
 	w = int(math.Round((float64(w) / 8.0) * number))
@@ -70,11 +70,11 @@ func SizeEightOver(number float64) (int, int) {
 func SizeFourOver(number float64) (int, int) {
 	w, h := Size()
 	if w < 4 || h < 4 {
-		return MidPoint()
+		return MidPoints()
 	}
 
 	if number > 3 || number < 1 {
-		return MidPoint()
+		return MidPoints()
 	}
 
 	w = int(math.Round((float64(w) / 4.0) * number))

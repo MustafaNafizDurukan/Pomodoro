@@ -1,7 +1,6 @@
-package pomo
+package timer
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/mustafanafizdurukan/pomodoro/internal/print"
@@ -10,18 +9,26 @@ import (
 	"github.com/mustafanafizdurukan/pomodoro/pkg/font"
 	"github.com/mustafanafizdurukan/pomodoro/pkg/logs"
 	"github.com/mustafanafizdurukan/pomodoro/pkg/play"
-	"github.com/mustafanafizdurukan/pomodoro/pkg/ticker"
 	"github.com/nsf/termbox-go"
 )
 
 type Timer struct {
-	queues chan termbox.Event
-	f      *font.Font
+	queues   chan termbox.Event
+	f        *font.Font
+	TaskInfo *print.TaskInfo
 }
 
 // New returns pointer of event structure. If given string could not be parsed It returns error.
 // Time string should be 1h6m, 23m3s format.
-func new(f *font.Font) (*Timer, error) {
+func New() (*Timer, error) {
+	_, y := console.SizeSixteenOver(8)
+	x, _ := console.MidPoints()
+	pos := font.Position{x, y}
+
+	f := font.New(termbox.ColorCyan, termbox.ColorDefault, &pos)
+
+	ti := &print.TaskInfo{}
+
 	queues := make(chan termbox.Event)
 	go func() {
 		for {
@@ -30,25 +37,14 @@ func new(f *font.Font) (*Timer, error) {
 	}()
 
 	return &Timer{
-		queues: queues,
-		f:      f,
+		queues:   queues,
+		f:        f,
+		TaskInfo: ti,
 	}, nil
-}
-
-func (t *Timer) Wait(willWait bool, timeLeft time.Duration) {
-	print.Time(t.f, timeLeft)
-
-	if willWait {
-		fmt.Scanln()
-	}
 }
 
 // Start starts pomodoro timer and if pomodoro finishes normally it returns true.
 func (t *Timer) Start(timeLeft time.Duration) bool {
-	return t.start(timeLeft)
-}
-
-func (t *Timer) start(timeLeft time.Duration) bool {
 	var err error
 	wilRun := true
 	defer func() {
@@ -56,7 +52,7 @@ func (t *Timer) start(timeLeft time.Duration) bool {
 		console.Flush()
 	}()
 
-	ticker.Start(timeLeft)
+	start(timeLeft)
 
 loop:
 	for {
@@ -66,29 +62,25 @@ loop:
 				d, _ := convert.StringToDate("10s")
 				if t.count(d, print.Quit) {
 					return false
-					// os.Exit(1)
 				}
 			}
 			if ev.Ch == 'p' || ev.Ch == 'P' {
-				ticker.Stop()
+				stop()
 			}
 			if ev.Ch == 'c' || ev.Ch == 'C' {
-				ticker.Start(timeLeft)
+				start(timeLeft)
 			}
-			// if ev.Type == termbox.EventKey && (ev.Key == termbox.KeySpace) {
-			// 	break loop
-			// }
-		case <-ticker.Ticker.C:
+		case <-tckr.C:
 			termbox.Sync()
-			ticker.Decrease(&timeLeft)
+			decrease(&timeLeft)
 			if wilRun {
-				print.Time(t.f, timeLeft)
+				print.Time(t.f, timeLeft, t.TaskInfo)
 
 				wilRun = false
 				break
 			}
 			wilRun = true
-		case <-ticker.Timer.C:
+		case <-tmr.C:
 			console.Clear()
 			break loop
 		}
@@ -116,7 +108,7 @@ func (t *Timer) count(d time.Duration, callBack func(d time.Duration)) bool {
 
 	wilRun := true
 
-	ticker.Start(d)
+	start(d)
 
 loop:
 	for {
@@ -131,19 +123,19 @@ loop:
 			if ev.Ch == 'y' || ev.Ch == 'Y' {
 				return true
 			}
-		case <-ticker.Ticker.C:
+		case <-tckr.C:
 			termbox.Sync()
 
 			if wilRun {
 				callBack(d)
 
-				ticker.Decrease(&d)
+				decrease(&d)
 				wilRun = false
 				break
 			}
-			ticker.Decrease(&d)
+			decrease(&d)
 			wilRun = true
-		case <-ticker.Timer.C:
+		case <-tmr.C:
 			console.Clear()
 			break loop
 		}

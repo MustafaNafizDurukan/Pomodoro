@@ -11,7 +11,7 @@ var (
 	ERROR *log.Logger
 )
 
-func InitLog(
+func initLog(
 	infoHandle io.Writer) {
 
 	INFO = log.New(infoHandle,
@@ -23,13 +23,14 @@ func InitLog(
 		log.Ldate|log.Ltime|log.Lshortfile)
 }
 
+// Set creates log file and sets writer
 func Set() *os.File {
 	logInfo, err := os.OpenFile("log.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalln("Fail to open log file")
 	}
 
-	InitLog(logInfo)
+	initLog(logInfo)
 
 	return logInfo
 }

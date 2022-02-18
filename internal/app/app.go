@@ -1,4 +1,5 @@
-package home
+// Package app is actually whole program.
+package app
 
 import (
 	"sync"
@@ -7,7 +8,7 @@ import (
 	"github.com/mustafanafizdurukan/pomodoro/pkg/dnsfilter/proxy"
 )
 
-type app struct {
+type App struct {
 	Tasks       []*task.Task
 	ActiveTask  *task.Task
 	DNS         *proxy.DNS
@@ -15,18 +16,21 @@ type app struct {
 	listeners   []EventListener
 }
 
-func New(at *task.Task, dns *proxy.DNS) *app {
-	return &app{
+// New creates app structure.
+func New(at *task.Task, dns *proxy.DNS) *App {
+	return &App{
 		ActiveTask: at,
 		DNS:        dns,
 	}
 }
 
-func (c *app) Add(t *task.Task) {
+// Add appends new task to task slice on app struct.
+func (c *App) Add(t *task.Task) {
 	c.Tasks = append(c.Tasks, t)
 }
 
-func (a *app) Run() {
+// Run runs for the set number of pomodoros.
+func (a *App) Run() {
 	for a.ActiveTask.P.PomNumber > a.ActiveTask.P.CompletedPomNumber {
 		a.RunOnce()
 	}
@@ -36,7 +40,8 @@ var (
 	isPomodoro = 1
 )
 
-func (a *app) RunOnce() {
+// RunOnce runs a pomodoro or a break.
+func (a *App) RunOnce() {
 	if isPomodoro == 1 {
 		a.onTaskStarted()
 	}
@@ -47,15 +52,18 @@ func (a *app) RunOnce() {
 	isPomodoro *= -1
 }
 
-func (a *app) Wait() {
+// Wait waits after pomodoro or break finished.
+func (a *App) Wait() {
 	a.ActiveTask.Wait(isPomodoro == 1)
 }
 
-func (c *app) AddEventListener(listener EventListener) {
+// AddEventListener adds new listener to listener slice on app struct.
+func (c *App) AddEventListener(listener EventListener) {
 	c.listeners = append(c.listeners, listener)
 }
 
-func (c *app) fireEvent(e *Event) {
+// fireEvent runs all listeners on app struct.
+func (c *App) fireEvent(e *Event) {
 	c.eventsMutex.Lock()
 	defer c.eventsMutex.Unlock()
 	for _, listener := range c.listeners {

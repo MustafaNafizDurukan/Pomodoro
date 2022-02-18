@@ -15,6 +15,7 @@ var (
 	errPlay   = errors.New("given sound could not be played")
 )
 
+// Sound plays random sound that is in sounds directory.
 func Sound() error {
 	m, err := sound()
 	if err != nil {

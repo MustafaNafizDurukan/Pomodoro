@@ -1,4 +1,4 @@
-package home
+package app
 
 type Event struct {
 	IsProxyEnabled bool

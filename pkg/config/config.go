@@ -21,6 +21,7 @@ type configuration struct {
 	WillWait       bool   `yaml:"WillWait"`
 }
 
+// EndsWithAny reports whether string ends with postfix as a boolean
 func EndsWithAny(haystack string, caseInsensitive bool, needles ...string) bool {
 	if caseInsensitive {
 		haystack = strings.ToLower(haystack)
