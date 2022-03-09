@@ -10,7 +10,7 @@ import (
 )
 
 type Pomo struct {
-	time               time.Duration
+	pomTime            time.Duration
 	shortBreak         time.Duration
 	PomNumber          int
 	CompletedPomNumber int
@@ -42,7 +42,7 @@ func New(pomoTime, shortBreak string, PomNumber int) (*Pomo, error) {
 	}
 
 	return &Pomo{
-		time:       pomoTimeD,
+		pomTime:    pomoTimeD,
 		shortBreak: shortBreakD,
 		PomNumber:  PomNumber,
 		Timer:      t,
@@ -55,7 +55,8 @@ func (p *Pomo) StartPomodoro() bool {
 		return true
 	}
 
-	isFinishedNormally := p.Timer.Start(p.time)
+	p.Timer.IsPomodoro = true
+	isFinishedNormally := p.Timer.Start(p.pomTime)
 
 	if isFinishedNormally {
 		p.CompletedPomNumber++
@@ -69,6 +70,7 @@ func (p *Pomo) StartPomodoro() bool {
 
 // StartBreak starts break.
 func (p *Pomo) StartBreak() {
+	p.Timer.IsPomodoro = false
 	p.Timer.Start(p.shortBreak)
 }
 

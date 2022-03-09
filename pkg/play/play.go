@@ -7,6 +7,7 @@ import (
 
 	"github.com/hajimehoshi/go-mp3"
 	"github.com/hajimehoshi/oto"
+	"github.com/mustafanafizdurukan/pomodoro/assets"
 )
 
 var (
@@ -15,13 +16,26 @@ var (
 	errPlay   = errors.New("given sound could not be played")
 )
 
-// Sound plays random sound that is in sounds directory.
+// Ring plays random sound that is in sounds directory.
+func Ring() error {
+	m, err := sound()
+	if err != nil {
+		return err
+	}
+
+	return play(m)
+}
+
 func Sound() error {
 	m, err := sound()
 	if err != nil {
 		return err
 	}
 
+	return play(m)
+}
+
+func play(m string) error {
 	f, err := os.Open(m)
 	if err != nil {
 		subSound(m)
@@ -48,4 +62,30 @@ func Sound() error {
 	}
 
 	return nil
+}
+
+// Warning plays warning messages when any session stopped for a long time.
+func Warning(warning assets.Warning) {
+	music, err := assets.LoadEmbeddedWarning(warning)
+	if err != nil {
+		return
+	}
+
+	d, err := mp3.NewDecoder(music)
+	if err != nil {
+		return
+	}
+
+	c, err := oto.NewContext(d.SampleRate(), 2, 2, 8192)
+	if err != nil {
+		return
+	}
+	defer c.Close()
+
+	player := c.NewPlayer()
+	defer player.Close()
+
+	if _, err := io.Copy(player, d); err != nil {
+		return
+	}
 }

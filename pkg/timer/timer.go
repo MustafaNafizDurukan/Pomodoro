@@ -13,9 +13,11 @@ import (
 )
 
 type Timer struct {
-	queues   chan termbox.Event
-	f        *font.Font
-	TaskInfo *print.TaskInfo
+	queues     chan termbox.Event
+	f          *font.Font
+	TaskInfo   *print.TaskInfo
+	Status     Status
+	IsPomodoro bool
 }
 
 // New returns pointer of event structure. If given string could not be parsed It returns error.
@@ -50,9 +52,10 @@ func (t *Timer) Start(timeLeft time.Duration) bool {
 	defer func() {
 		console.Clear()
 		console.Flush()
+		t.Status = finished
 	}()
 
-	start(timeLeft)
+	t.start(timeLeft)
 
 loop:
 	for {
@@ -65,10 +68,11 @@ loop:
 				}
 			}
 			if ev.Ch == 'p' || ev.Ch == 'P' {
-				stop()
+				t.stop()
+				go t.startPauseTimer()
 			}
 			if ev.Ch == 'c' || ev.Ch == 'C' {
-				start(timeLeft)
+				t.start(timeLeft)
 			}
 		case <-tckr.C:
 			termbox.Sync()
@@ -108,7 +112,7 @@ func (t *Timer) count(d time.Duration, callBack func(d time.Duration)) bool {
 
 	wilRun := true
 
-	start(d)
+	t.start(d)
 
 loop:
 	for {
