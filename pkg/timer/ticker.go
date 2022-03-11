@@ -43,13 +43,20 @@ const (
 )
 
 func (t *Timer) startPauseTimer() {
+	if t.isGoroutineAlive {
+		return
+	}
+
+	t.isGoroutineAlive = true
+	defer func() { t.isGoroutineAlive = false }()
+
 	counter := 0
 	for {
-		if 10 < counter {
+		if counter > 12 {
 			break
 		}
 
-		if counter < 4 {
+		if counter < 6 {
 			time.Sleep(shortBreak)
 		} else {
 			time.Sleep(longBreak)

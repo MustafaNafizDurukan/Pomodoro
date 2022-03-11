@@ -13,11 +13,12 @@ import (
 )
 
 type Timer struct {
-	queues     chan termbox.Event
-	f          *font.Font
-	TaskInfo   *print.TaskInfo
-	Status     Status
-	IsPomodoro bool
+	queues           chan termbox.Event
+	f                *font.Font
+	TaskInfo         *print.TaskInfo
+	Status           Status
+	IsPomodoro       bool
+	isGoroutineAlive bool
 }
 
 // New returns pointer of event structure. If given string could not be parsed It returns error.
@@ -53,6 +54,7 @@ func (t *Timer) Start(timeLeft time.Duration) bool {
 		console.Clear()
 		console.Flush()
 		t.Status = finished
+		go t.startPauseTimer()
 	}()
 
 	t.start(timeLeft)
